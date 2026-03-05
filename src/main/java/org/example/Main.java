@@ -1,17 +1,32 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+import java.nio.file.Path;
+import java.util.Scanner;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
+public class Main {
+
+    static void main() {
+        Scanner in = new Scanner(System.in);
+        System.out.println("choose an option:");
+        System.out.println("e -> encrypt");
+        System.out.println("d -> decrypt");
+        String choice = in.nextLine().trim().toLowerCase();
+        if (choice.equals("e")) {
+            System.out.println ("Enter the path:");
+            String input = in.nextLine().trim();
+            Path path = Path.of(input);
+            FileService fileService = new FileService();
+            String content = fileService.readFile(path);
+            EncryptionService encryptionService = new EncryptionService();
+            String encryptedContent = encryptionService.encrypt(content);
+            int key = encryptionService.getKey();
+            EncryptionResult result = fileService.writePaths(path, encryptedContent, key);
+            System.out.println("Encrypted file:" + result.getEncryptedFile());
+            System.out.println("Key file:" + result.getKeyFile());
         }
+        else if (choice.equals("d"))
+            System.out.println("boo");
+        else
+            System.out.println("Invalid choice");
     }
 }
