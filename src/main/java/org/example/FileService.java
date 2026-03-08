@@ -18,8 +18,8 @@ public class FileService {
     public EncryptionResult writePaths (Path originalPath, String encryptedContent, int key) {
         String fileName = originalPath.getFileName().toString();
         int dotIndex = fileName.lastIndexOf(".");
-        String name = fileName.substring(0, dotIndex);
-        String extension = fileName.substring(dotIndex);
+        String name = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+        String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);
         Path encryptedPath = originalPath.getParent().resolve(name + "_encrypted" + extension);
         Path keyPath = originalPath.getParent().resolve(name + "_key.txt");
         try {
