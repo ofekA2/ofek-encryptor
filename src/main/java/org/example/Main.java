@@ -10,18 +10,20 @@ public class Main {
     static void main() throws IOException {
         Scanner in = new Scanner(System.in);
         while (true) {
-            System.out.println("choose an option - e for encryption / d for decryption:");
+            System.out.println("choose an option - e for encryption / d for decryption / x for exit:");
             String choice = in.nextLine().trim().toLowerCase();
             if (choice.equals("e")) {
                 handleEncryption (in);
-                break;
             }
             else if (choice.equals("d")) {
                 handleDecryption (in);
+            }
+            else if (choice.equals("x")) {
+                System.out.println("Goodbye");
                 break;
             }
             else
-                System.out.println("Invalid choice, please enter 'e' or 'd'");
+                System.out.println("Invalid choice, please try again");
         }
     }
 
@@ -76,6 +78,14 @@ public class Main {
         int key;
         Path encryptedPath = validFile(in, "Enter the path to the encrypted file:");
         Path keyPath = validFile(in, "Enter the path to the key file:");
+        String encryptedName = encryptedPath.getFileName().toString();
+        String keyName = keyPath.getFileName().toString();
+        String encryptedBase = encryptedName.replace("_encrypted.txt", "");
+        String keyBase = keyName.replace("_key.txt", "");
+        if (!encryptedBase.equals(keyBase)) {
+            System.out.println("The key file does not match the encrypted file, please enter the correct files");
+            return;
+        }
         FileService fileService = new FileService();
         EncryptionService encryptionService = new EncryptionService();
         String encryptedContent = fileService.readFile(encryptedPath);
