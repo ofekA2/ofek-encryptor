@@ -1,112 +1,71 @@
 package org.example;
 
+import org.example.enums.OperationType;
+import org.example.models.EncryptionResult;
+import org.example.services.EncryptionService;
+import org.example.services.FileService;
+import org.example.services.IOHandler;
+import org.example.services.PathService;
+
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Scanner;
 
 public class Main {
 
-    static void main() throws IOException {
-        Scanner in = new Scanner(System.in);
-        while (true) {
-            System.out.println("choose an option - e for encryption / d for decryption / x for exit:");
-            String choice = in.nextLine().trim().toLowerCase();
-            if (choice.equals("e")) {
-                handleEncryption (in);
-            }
-            else if (choice.equals("d")) {
-                handleDecryption (in);
-            }
-            else if (choice.equals("x")) {
-                System.out.println("Goodbye");
-                break;
-            }
-            else
-                System.out.println("Invalid choice, please try again");
-        }
-    }
-
-    static Path validFile (Scanner in, String message) {
-        while (true) {
-            System.out.println(message);
-            String input = in.nextLine().trim();
-            Path path = Path.of(input);
-            if (!Files.exists(path)) {
-                System.out.println("File not found, please try again");
-                continue;
-            }
-            if (!Files.isRegularFile(path)) {
-                System.out.println("The path points to a directory, please enter a file");
-                continue;
-            }
-            try {
-                if (Files.size(path) == 0) {
-                    System.out.println("The file is empty - nothing to encrypt");
-                    continue;
-                }
-            } catch (IOException e) {
-                System.out.println("Unable to access the file, please try another one");
-                continue;
-            }
-            return path;
-        }
-    }
-
-    private static void handleEncryption (Scanner in) {
-        Path path = validFile(in, "Enter the path to the file:");
+    public static void main(String[] args) throws IOException {
+        IOHandler io = new IOHandler();
         FileService fileService = new FileService();
         EncryptionService encryptionService = new EncryptionService();
+        OperationType operation;
+        do {
+            operation = askUserOperation(io);
+            if (operation == OperationType.ENCRYPT) {
+                handleEncryption(io, fileService, encryptionService);
+            }
+            if (operation == OperationType.DECRYPT) {
+                handleDecryption(io, fileService, encryptionService);
+            }
+        } while (operation != OperationType.EXIT);
+        io.print("Goodbye");
+    }
+
+    private static OperationType askUserOperation(IOHandler io) {
+        while (true) {
+            io.print("Choose an option - e for encryption / d for decryption / x for exit:");
+            String choice = io.readLine().toLowerCase();
+            switch (choice) {
+                case "e":
+                    return OperationType.ENCRYPT;
+                case "d":
+                    return OperationType.DECRYPT;
+                case "x":
+                    return OperationType.EXIT;
+                default:
+                    io.print("Invalid option, please try again");
+            }
+        }
+    }
+
+    private static void handleEncryption(IOHandler io, FileService fileService, EncryptionService encryptionService) throws IOException {
+        Path path = fileService.getValidFilePath(io, "Enter the path to the file:");
         String content = fileService.readFile(path);
-        String encryptedContent = encryptionService.encrypt(content);
-        int key = encryptionService.getKey();
-        String fileName = path.getFileName().toString();
-        if (fileName.contains("_encrypted")) {
-            System.out.println("This file has already been encrypted");
-            return;
-        }
-        try {
-            EncryptionResult result = fileService.writePaths(path, encryptedContent, key);
-            System.out.println("Encrypted file: " + result.getEncryptedFile());
-            System.out.println("Key file: " + result.getKeyFile());
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-        }
+        EncryptionResult result = encryptionService.encrypt(content);
+        Path encryptedPath = PathService.buildEncryptedPath(path);
+        Path keyPath = PathService.buildKeyPath(path);
+        fileService.writeFile(encryptedPath, result.getEncryptedContent());
+        fileService.writeFile(keyPath, String.valueOf(result.getKey()));
+        io.print("Encrypted file: " + encryptedPath);
+        io.print("Key file: " + keyPath);
     }
 
-    private static void handleDecryption (Scanner in) throws IOException {
-        int key;
-        Path encryptedPath = validFile(in, "Enter the path to the encrypted file:");
-        Path keyPath = validFile(in, "Enter the path to the key file:");
-        String encryptedName = encryptedPath.getFileName().toString();
-        String keyName = keyPath.getFileName().toString();
-        String encryptedBase = encryptedName.replace("_encrypted.txt", "");
-        String keyBase = keyName.replace("_key.txt", "");
-        if (!encryptedBase.equals(keyBase)) {
-            System.out.println("The key file does not match the encrypted file, please enter the correct files");
-            return;
-        }
-        FileService fileService = new FileService();
-        EncryptionService encryptionService = new EncryptionService();
+    private static void handleDecryption(IOHandler io, FileService fileService, EncryptionService encryptionService) throws IOException {
+        Path encryptedPath = fileService.getValidFilePath(io, "Enter the encrypted file:");
+        Path keyPath = fileService.getValidFilePath(io, "Enter the key file:");
         String encryptedContent = fileService.readFile(encryptedPath);
-        String keyString = fileService.readFile(keyPath);
-        try {
-            key = Integer.parseInt(keyString.trim());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid key format");
-            return;
-        }
+        int key = Integer.parseInt(fileService.readFile(keyPath).trim());
         String decryptedContent = encryptionService.decrypt(encryptedContent, key);
-        String fileName = encryptedPath.getFileName().toString();
-        if (!fileName.contains("_encrypted")) {
-            System.out.println("This file is not encrypted");
-            return;
-        }
-        int dotIndex = fileName.lastIndexOf(".");
-        String name = (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
-        String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex);
-        Path decryptedPath = encryptedPath.getParent().resolve(name + "_decrypted" + extension);
-        Files.writeString(decryptedPath, decryptedContent);
-        System.out.println("Decrypted file: " + decryptedPath);
+        Path outputPath = PathService.buildDecryptedPath(encryptedPath);
+        fileService.writeFile(outputPath, decryptedContent);
+        io.print("Decrypted file: " + outputPath);
     }
 }
