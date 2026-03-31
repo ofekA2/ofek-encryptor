@@ -1,13 +1,9 @@
 
-package org.example.services;
-
-import org.example.models.EncryptionResult;
+package org.example.util;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Scanner;
 
 public class FileService {
 
@@ -17,6 +13,10 @@ public class FileService {
 
     public void writeFile(Path path, String content) throws IOException {
         Files.writeString(path, content);
+    }
+
+    public void writeFile(Path path, Integer content) throws IOException {
+        Files.writeString(path, content.toString());
     }
 
     public boolean isValidFile(Path path) {

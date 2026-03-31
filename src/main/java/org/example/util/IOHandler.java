@@ -1,5 +1,5 @@
 
-package org.example.services;
+package org.example.util;
 
 import java.util.Scanner;
 
