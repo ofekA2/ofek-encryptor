@@ -1,3 +1,4 @@
+
 package org.example.services;
 
 import java.util.Scanner;
@@ -5,11 +6,11 @@ import java.util.Scanner;
 public class IOHandler {
     private final Scanner scanner;
 
-    public IOHandler() {
-        scanner = new Scanner(System.in);
+    public IOHandler(Scanner scanner) {
+        this.scanner = scanner;
     }
 
-    public String readLine() {
+    public String readText() {
         return scanner.nextLine();
     }
 
