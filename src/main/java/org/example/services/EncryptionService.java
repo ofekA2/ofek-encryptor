@@ -2,6 +2,7 @@
 package org.example.services;
 
 import org.example.models.EncryptionResult;
+
 import java.util.Random;
 
 public class EncryptionService {
@@ -12,7 +13,7 @@ public class EncryptionService {
     }
 
     public EncryptionResult encrypt(String content) {
-        int key = new Random().nextInt(65536);
+        Integer key = this.random.nextInt(65536);
         StringBuilder encryptedContent = new StringBuilder();
         for (char c : content.toCharArray()) {
             char encryptedChar = (char) ((c + key) % 65536);
@@ -21,7 +22,7 @@ public class EncryptionService {
         return new EncryptionResult(encryptedContent.toString(), key);
     }
 
-    public String decrypt(String content, int key) {
+    public String decrypt(String content, Integer key) {
         StringBuilder decryptedContent = new StringBuilder();
         for (char c : content.toCharArray()) {
             char decryptedChar = (char) ((c - key + 65536) % 65536);

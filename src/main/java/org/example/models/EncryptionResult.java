@@ -14,7 +14,7 @@ public class EncryptionResult {
         return encryptedContent;
     }
 
-    public int getKey() {
+    public Integer getKey() {
         return key;
     }
 }

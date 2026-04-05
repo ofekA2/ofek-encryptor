@@ -7,6 +7,7 @@ import org.example.services.EncryptionService;
 import org.example.util.FileService;
 import org.example.util.IOHandler;
 import org.example.util.PathService;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -60,7 +61,7 @@ public class EncryptorController {
     private void handleDecryption() throws IOException {
         Path encryptedPath = askUserForValidPath("Enter the path to the encrypted file:");
         Path keyPath = askUserForValidPath("Enter the path to the key file:");
-        int key = Integer.parseInt(fileService.readFile(keyPath));
+        Integer key = Integer.parseInt(fileService.readFile(keyPath));
         String encryptedContent = fileService.readFile(encryptedPath);
         String decryptedContent = encryptionService.decrypt(encryptedContent, key);
         Path outputPath = pathService.buildDecryptedFilePath(encryptedPath);
