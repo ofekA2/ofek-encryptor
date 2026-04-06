@@ -1,7 +1,6 @@
-
 package org.example;
 
-import org.example.controller.EncryptorController;
+import org.example.manager.EncryptorManager;
 import org.example.services.EncryptionService;
 import org.example.util.FileService;
 import org.example.util.IOHandler;
@@ -15,16 +14,13 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
-
         IOHandler io = new IOHandler(scanner);
         FileService fileService = new FileService();
-        PathService pathService = new PathService();
+        PathService pathService = new PathService(io, fileService);
         Random random = new Random();
         EncryptionService encryptionService = new EncryptionService(random);
-
-        EncryptorController controller =
-                new EncryptorController(io, fileService, encryptionService, pathService);
-
-        controller.run();
+        EncryptorManager manager = new EncryptorManager(io, fileService, encryptionService, pathService);
+        manager.run();
     }
+
 }

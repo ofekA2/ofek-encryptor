@@ -1,4 +1,3 @@
-
 package org.example.services;
 
 import org.example.models.EncryptionResult;
@@ -6,6 +5,7 @@ import org.example.models.EncryptionResult;
 import java.util.Random;
 
 public class EncryptionService {
+
     private final Random random;
 
     public EncryptionService(Random random) {
@@ -30,4 +30,5 @@ public class EncryptionService {
         }
         return decryptedContent.toString();
     }
+
 }

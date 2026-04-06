@@ -1,5 +1,4 @@
-
-package org.example.controller;
+package org.example.manager;
 
 import org.example.enums.OperationType;
 import org.example.models.EncryptionResult;
@@ -10,14 +9,16 @@ import org.example.util.PathService;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Objects;
 
-public class EncryptorController {
+public class EncryptorManager {
+
     private final IOHandler io;
     private final FileService fileService;
     private final EncryptionService encryptionService;
     private final PathService pathService;
 
-    public EncryptorController(IOHandler io, FileService fileService, EncryptionService encryptionService, PathService pathService) {
+    public EncryptorManager(IOHandler io, FileService fileService, EncryptionService encryptionService, PathService pathService) {
         this.io = io;
         this.fileService = fileService;
         this.encryptionService = encryptionService;
@@ -27,7 +28,7 @@ public class EncryptorController {
     public void run() throws IOException {
         OperationType operation;
         do {
-            operation = askUserOperation();
+            operation = getOperationFromUser();
             if (operation == OperationType.ENCRYPT) {
                 handleEncryption();
             }
@@ -38,29 +39,35 @@ public class EncryptorController {
         io.print("Goodbye");
     }
 
-    public OperationType askUserOperation() {
+    public OperationType getOperationFromUser() {
         OperationType operation;
         do {
-            io.print("Choose an option - e for encryption / d for decryption / x for exit:");
+            io.print("Choose an option:");
+            for (OperationType op : OperationType.values()) {
+                io.print(op.getCode() + " -> " + op.name().toLowerCase());
+            }
             String input = io.readText();
             operation = OperationType.fromInput(input);
-            if (operation == null) {
+            if (Objects.isNull(operation)) {
                 io.print("Invalid option, please try again");
             }
-        } while (operation == null);
+        } while (Objects.isNull(operation));
         return operation;
     }
 
     private void handleEncryption() throws IOException {
-        Path path = askUserForValidPath("Enter the path to the file:");
+        io.print("Enter the path to the file:");
+        Path path = pathService.getFilePathFromUser();
         String content = fileService.readFile(path);
         EncryptionResult result = encryptionService.encrypt(content);
         saveEncryptionResult(path, result);
     }
 
     private void handleDecryption() throws IOException {
-        Path encryptedPath = askUserForValidPath("Enter the path to the encrypted file:");
-        Path keyPath = askUserForValidPath("Enter the path to the key file:");
+        io.print("Enter the path to the encrypted file:");
+        Path encryptedPath = pathService.getFilePathFromUser();
+        io.print("Enter the path to the key file:");
+        Path keyPath = pathService.getFilePathFromUser();
         Integer key = Integer.parseInt(fileService.readFile(keyPath));
         String encryptedContent = fileService.readFile(encryptedPath);
         String decryptedContent = encryptionService.decrypt(encryptedContent, key);
@@ -78,18 +85,4 @@ public class EncryptorController {
         io.print("Key file: " + keyPath);
     }
 
-    private Path askUserForValidPath(String message) {
-        Path path;
-        boolean valid;
-        do {
-            io.print(message);
-            String input = io.readText();
-            path = Path.of(input);
-            valid = fileService.isValidFile(path);
-            if (!valid) {
-                io.print("Invalid file, please try again.");
-            }
-        } while (!valid);
-        return path;
-    }
 }

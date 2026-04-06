@@ -1,4 +1,3 @@
-
 package org.example.util;
 
 import java.io.IOException;
@@ -19,9 +18,8 @@ public class FileService {
         Files.writeString(path, content.toString());
     }
 
-    public boolean isValidFile(Path path) {
-        return Files.exists(path) &&
-                Files.isRegularFile(path) &&
-                path.toString().endsWith(".txt");
+    public boolean isValidTxtFile(Path path) {
+        return Files.exists(path) && Files.isRegularFile(path) && path.toString().endsWith(".txt");
     }
+
 }

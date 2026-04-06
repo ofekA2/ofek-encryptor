@@ -1,9 +1,9 @@
-
 package org.example.util;
 
 import java.util.Scanner;
 
 public class IOHandler {
+
     private final Scanner scanner;
 
     public IOHandler(Scanner scanner) {
@@ -17,4 +17,5 @@ public class IOHandler {
     public void print(String message) {
         System.out.println(message);
     }
+
 }

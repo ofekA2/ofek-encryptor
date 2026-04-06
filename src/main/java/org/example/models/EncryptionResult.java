@@ -1,7 +1,7 @@
-
 package org.example.models;
 
 public class EncryptionResult {
+
     private final String encryptedContent;
     private final Integer key;
 
@@ -17,4 +17,5 @@ public class EncryptionResult {
     public Integer getKey() {
         return key;
     }
+
 }

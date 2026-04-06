@@ -1,5 +1,6 @@
-
 package org.example.enums;
+
+import java.util.Arrays;
 
 public enum OperationType {
 
@@ -13,12 +14,12 @@ public enum OperationType {
         this.code = code;
     }
 
-    public static OperationType fromInput(String input) {
-        for (OperationType op : values()) {
-            if (op.code.equals(input)) {
-                return op;
-            }
-        }
-        return null;
+    public String getCode() {
+        return this.code;
     }
+
+    public static OperationType fromInput(String input) {
+        return Arrays.stream(values()).filter(op -> op.code.equals(input)).findFirst().orElse(null);
+    }
+
 }
